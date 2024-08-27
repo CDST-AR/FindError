@@ -159,7 +159,7 @@ onAuthStateChanged(auth, (user) => {
             event.preventDefault();
             signOut(auth).then(() => {
                 console.log("Cierre de sesión exitoso");
-                window.location.href = 'login.html';  // Redirige a la página de inicio de sesión
+                window.location.href = 'Index.html';  // Redirige a la página de inicio de sesión
             }).catch((error) => {
                 console.error("Error al cerrar sesión:", error.message);
             });

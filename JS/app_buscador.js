@@ -166,6 +166,6 @@ onAuthStateChanged(auth, (user) => {
         });
     } else {
         console.log("No hay usuario autenticado.");
-        window.location.href = 'index.html'; // Redirigir a la página de inicio de sesión si no está autenticado
+        window.location.href = 'Index.html'; // Redirigir a la página de inicio de sesión si no está autenticado
     }
 });

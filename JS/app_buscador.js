@@ -1,4 +1,4 @@
-// Configuración de Firebase
+// Importar Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
 import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
@@ -18,6 +18,29 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const auth = getAuth(app);
+
+// Temporizador de inactividad (5 minutos)
+let inactivityTimeout;
+
+function resetInactivityTimer() {
+    clearTimeout(inactivityTimeout);
+    inactivityTimeout = setTimeout(() => {
+        signOut(auth).then(() => {
+            console.log("Cierre de sesión por inactividad.");
+            alert("Se ha cerrado la sesión por inactividad.");
+            window.location.href = 'login.html'; // Redirigir a la página de inicio de sesión
+        }).catch((error) => {
+            console.error("Error al cerrar sesión:", error.message);
+        });
+    }, 5 * 60 * 1000); // 5 minutos
+}
+
+// Escuchar eventos de actividad para reiniciar el temporizador
+window.onload = resetInactivityTimer;
+document.onmousemove = resetInactivityTimer;
+document.onkeypress = resetInactivityTimer;
+document.onscroll = resetInactivityTimer;
+document.onclick = resetInactivityTimer;
 
 // Función para limpiar los detalles del error
 function limpiarDetallesError() {
@@ -133,25 +156,22 @@ onAuthStateChanged(auth, (user) => {
 
     if (user) {
         console.log("Usuario autenticado:", user);
-        const usernameElement = document.getElementById('username');
 
         // Obtener el nombre o email del usuario
         const userNameOrEmail = user.displayName || user.email || "Usuario";
-
-        // Si el usuario tiene un email y no tiene un displayName, extraer solo la parte antes del '@'
         const username = user.email ? user.email.split('@')[0] : userNameOrEmail;
 
         // Mostrar el nombre o el email (sin '@' y lo que sigue) del usuario
         usernameElement.textContent = username;
-        cargarModelos(); // Cargar modelos disponibles
 
-        // Cuando se seleccione un modelo, cargar los errores asociados
+        // Cargar modelos disponibles
+        cargarModelos();
+
+        // Eventos para cargar errores y buscar detalles al seleccionar un modelo o código de error
         document.getElementById("modelSelect").addEventListener("change", () => {
             cargarErrores();
-            limpiarDetallesError(); // Limpiar los detalles del error al cambiar de modelo
+            limpiarDetallesError();
         });
-
-        // Cuando se seleccione un código de error, cargar los detalles del error
         document.getElementById("errorSelect").addEventListener("change", buscarError);
 
         // Manejador de clic en el enlace de salida
@@ -159,11 +179,14 @@ onAuthStateChanged(auth, (user) => {
             event.preventDefault();
             signOut(auth).then(() => {
                 console.log("Cierre de sesión exitoso");
-                window.location.href = 'index.html';  // Redirige a la página de inicio de sesión
+                window.location.href = 'index.html';  // Redirigir a la página de inicio de sesión
             }).catch((error) => {
                 console.error("Error al cerrar sesión:", error.message);
             });
         });
+
+        // Inicia el temporizador de inactividad al autenticarse
+        resetInactivityTimer();
     } else {
         console.log("No hay usuario autenticado.");
         window.location.href = 'index.html'; // Redirigir a la página de inicio de sesión si no está autenticado

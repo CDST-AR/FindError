@@ -28,7 +28,7 @@ function resetInactivityTimer() {
         signOut(auth).then(() => {
             console.log("Cierre de sesión por inactividad.");
             alert("Se ha cerrado la sesión por inactividad.");
-            window.location.href = 'login.html'; // Redirigir a la página de inicio de sesión
+            window.location.href = 'index.html'; // Redirigir a la página de inicio de sesión
         }).catch((error) => {
             console.error("Error al cerrar sesión:", error.message);
         });
